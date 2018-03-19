@@ -154,9 +154,13 @@ Dir.glob(path + '/**/pom.xml') do |doc|
         # look up the latest maven repository
         unless to_check.empty?
           updated = true
-          puts doc.to_s
-          puts url(dependency)
-          update(open(url(dependency)).read)
+          puts '|'
+          # if there's any errors, skip it
+          begin
+            update(open(url(dependency)).read)
+          rescue
+            puts "error in #{doc.to_s}: there is no dependency with groupId: #{dependency.groupId} and artifactId: #{dependency.artifactId}."
+          end
         end
         if updated
           log.has_key?(doc.to_s) ?
@@ -170,9 +174,9 @@ Dir.glob(path + '/**/pom.xml') do |doc|
 end
 
 puts 'report:'
-log.each_key do |key|
-  puts key
-  log[key].each do |value|
-    puts "\t#{value}"
+log.each_key do |pom|
+  puts pom
+  log[pom].each do |dep|
+    puts "\t#{dep}"
   end
 end
